@@ -1,0 +1,23 @@
+services:
+  dev:
+    build:
+      context: ./docker/dev
+      dockerfile: Dockerfile
+      args:
+        VARIANT: ${ALMALINUX_VARIANT}
+        DOTNET_VERSION: ${DOTNET_VERSION}
+        USER_NAME: ${USER_NAME}
+        USER_PASSWORD: ${USER_PASSWORD}
+        USER_UID: ${USER_UID}
+        USER_GID: ${USER_GID}
+    user: ${USER_UID}:${USER_GID}
+    ports:
+      - ${SSH_PORT}:22
+      - 8000:8000
+    volumes:
+      - ./ssh_host_keys:/etc/ssh/ssh_host_keys
+      - home:/home
+    tty: true
+
+volumes:
+  home:
