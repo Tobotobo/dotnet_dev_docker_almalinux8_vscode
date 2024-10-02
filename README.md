@@ -62,15 +62,30 @@ GLOBAL OPTIONS:
 ```
 
 ```
-code serve-web --without-connection-token
+./code serve-web --without-connection-token
 ```
 
 ```
 ./code serve-web --without-connection-token --host 0.0.0.0
 ```
 
+```
+ssh user@localhost -p2222 -L 8000:127.0.0.1:8000
+```
+bind [127.0.0.1]:8000: Permission denied
+/etc/ssh/sshd_config
+AllowTcpForwarding が yes になっているか確認
+
 VSCode 組み込みのポート転送は使えないっぽい？
 ssh で接続してポート転送した方がいいかも
+
+* Git のアイコンに定期的に時計マークが表示されて煩わしい
+* デフォルトで自動保存の設定: 「Auto Save」が有効になっている（編集したそばから保存されていく）  
+  →　dotnet watch と相性が悪い
+* WPF の XAML がビルドするまでエラーを吐き続ける　※プロジェクトのエラーがポップし続ける
+
+dotnet watch --project ExampleApp.Web --urls "http://127.0.0.1:5000"
+ssh user@localhost -p2222 -L 8000:localhost:8000 -L 5000:localhost:5000
 
 ### 参考
 * サーバー上のVS Codeでリモート開発　tunnelとserve-web  
