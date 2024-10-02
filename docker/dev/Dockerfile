@@ -7,12 +7,6 @@ ARG USER_PASSWORD
 ARG USER_UID
 ARG USER_GID
 
-ARG DOTNET_VERSION
-ARG DOTNET_INSTALL_PATH="/usr/local/share/dotnet"
-
-ARG VSCODE_VERSION="stable"
-ARG VSCODE_INSTALL_PATH="/usr/local/bin"
-
 RUN dnf update -y \
     && dnf install -y epel-release \
     && dnf install -y --enablerepo=epel \
@@ -22,7 +16,43 @@ RUN dnf update -y \
         openssh-server \
         supervisor \
         wget \
-        libicu
+        zip \
+        nano \ 
+        htop
+
+# ----------------------------------------------------------------------------------------------------
+
+ARG DOTNET_VERSION
+ARG DOTNET_INSTALL_PATH="/usr/local/share/dotnet"
+
+ARG VSCODE_VERSION="stable"
+ARG VSCODE_INSTALL_PATH="/usr/local/bin"
+
+RUN dnf install -y \
+    libicu 
+
+# .NET SDK のインストール ※要 libicu
+RUN wget https://dot.net/v1/dotnet-install.sh -O dotnet-install.sh \
+    && chmod +x ./dotnet-install.sh \
+    && mkdir -p "${DOTNET_INSTALL_PATH}" \
+    && ./dotnet-install.sh --version ${DOTNET_VERSION} --install-dir "${DOTNET_INSTALL_PATH}" \
+    && rm ./dotnet-install.sh \
+    && echo "export PATH=\$PATH:${DOTNET_INSTALL_PATH}" > /etc/profile.d/dotnet_path.sh
+
+# VSCode CLI をインストール
+RUN wget "https://code.visualstudio.com/sha/download?build=${VSCODE_VERSION}&os=cli-alpine-x64" -O vscode_cli.tar.gz \
+    && tar -xf vscode_cli.tar.gz \
+    && mv ./code "${VSCODE_INSTALL_PATH}" \
+    && rm ./vscode_cli.tar.gz
+
+COPY settings.json /vscode/server-data/data/Machine/settings.json 
+RUN mkdir -p "/vscode/server-data" \
+    && mkdir -p "/vscode/user-data" \
+    && mkdir -p "/vscode/extensions" \
+    && mkdir -p "/vscode/cli-data" \
+    && chmod -R 777 /vscode
+
+# ----------------------------------------------------------------------------------------------------
 
 # Entrypoint
 COPY entrypoint.d /entrypoint.d
@@ -39,20 +69,6 @@ RUN mkdir -p /var/run/supervisor /var/log/supervisor \
 RUN mkdir -p /etc/ssh/ssh_host_keys \
     && sed -i 's|HostKey /etc/ssh/|HostKey /etc/ssh/ssh_host_keys/|' /etc/ssh/sshd_config
 
-# .NET SDK のインストール ※要 wget libicu
-RUN wget https://dot.net/v1/dotnet-install.sh -O dotnet-install.sh \
-    && chmod +x ./dotnet-install.sh \
-    && mkdir -p "${DOTNET_INSTALL_PATH}" \
-    && ./dotnet-install.sh --version ${DOTNET_VERSION} --install-dir "${DOTNET_INSTALL_PATH}" \
-    && rm ./dotnet-install.sh \
-    && echo "export PATH=\$PATH:${DOTNET_INSTALL_PATH}" > /etc/profile.d/dotnet_path.sh
-
-# VSCode CLI をインストール
-RUN wget "https://code.visualstudio.com/sha/download?build=${VSCODE_VERSION}&os=cli-alpine-x64" -O vscode_cli.tar.gz \
-    && tar -xf vscode_cli.tar.gz \
-    && mv ./code "${VSCODE_INSTALL_PATH}" \
-    && rm ./vscode_cli.tar.gz
-
 # 一般ユーザー追加    
 RUN groupadd --gid ${USER_GID} ${USER_NAME} \
     && useradd \
@@ -67,7 +83,7 @@ RUN groupadd --gid ${USER_GID} ${USER_NAME} \
     && echo "${USER_NAME}:${USER_PASSWORD}" | chpasswd
 
 EXPOSE 22
-ENTRYPOINT ["sudo", "/entrypoint.sh"]
+ENTRYPOINT ["sudo", "-E", "/entrypoint.sh"]
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/supervisord.conf"]
 USER ${USER_NAME}
 WORKDIR /home/${USER_NAME}
