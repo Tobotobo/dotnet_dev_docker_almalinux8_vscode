@@ -267,5 +267,77 @@ docker compose logs
 docker compose exec dev bash
 ```
 
+    const URL_VSIX_PATTERN = '
+    
+VisualStudio Marketplace - Visual Studio Code > Programming Languages > C# 
+https://marketplace.visualstudio.com/items?itemName=ms-dotnettools.csharp
+
+* 末尾の `itemName=` 以降を取得　→　`ms-dotnettools.csharp`
+* ドットで分割する。前が publisher 後ろが extension
+* Version History でダウンロードしたバージョンを確認　→　2.49.25
+
+```
+publisher=ms-dotnettools
+extension=csharp
+version=2.49.25
+wget "https://marketplace.visualstudio.com/_apis/public/gallery/publishers/${publisher}/vsextensions/${extension}/${version}/vspackage" -O "${publisher}.${extension}-${version}.vsix"
+wget "https://marketplace.visualstudio.com/_apis/public/gallery/publishers/${publisher}/vsextensions/${extension}/${version}/vspackage" -O /tmp/vspackage.gzip
+
+7z x /tmp/vspackage.gzip -o/tmp/
+7z x -so /tmp/vspackage.gzip | 7z x -si -tzip -ovspackage
+
+wget "https://marketplace.visualstudio.com/_apis/public/gallery/publishers/ms-dotnettools/vsextensions/csharp/2.49.25/vspackage" -O /tmp/vspackage.gzip
+gunzip -c /tmp/vspackage.gzip > /tmp/vspackage.zip
+unzip /tmp/vspackage.zip "extension/*" -d vspackage
+mv /tmp/vspackage/extension /vscode/extensions/ms-dotnettools.csharp-2.49.25-linux-x64
+
+unzip /tmp/vspackage.zip -d vspackage
+
+/tmp/vspackage/extension /vscode/extensions/ms-dotnettools.csharp-2.49.25-linux-x64
+
+mv /tmp/vspackage/extension /vscode/extensions/ms-dotnettools.csharp-2.49.25-linux-x64
 
 
+gunzip -c /tmp/vspackage.gzip | unzip - -d vspackage
+gunzip -c /tmp/vspackage.gzip | unzip - "extension/*" -d vspackage
+gunzip -c /tmp/vspackage.gzip | unzip - "extension/*" -d vspackage
+
+ms-dotnettools.csharp-2.49.25-linux-x64  ms-dotnettools.vscode-dotnet-runtime-2.1.7
+
+http://localhost:8000/
+
+```
+Unable to find extension target platform - no vsix manifest file exists at /vscode/extensions/ms-dotnettools.csharp-2.45.25-linux-x64/.vsixmanifest
+Using dotnet configured on PATH
+Dotnet path: /usr/local/share/dotnet/dotnet
+Activating C# standalone...
+waiting for named pipe information from server...
+[Error - 2:56:17 PM] Microsoft.CodeAnalysis.LanguageServer client: couldn't create connection to server.
+Error: Timeout. Client cound not connect to server via named pipe
+	at W.<anonymous> (/vscode/extensions/ms-dotnettools.csharp-2.45.25-linux-x64/dist/extension.js:2:1265571)
+	at Generator.next (<anonymous>)
+	at s (/vscode/extensions/ms-dotnettools.csharp-2.45.25-linux-x64/dist/extension.js:2:1253516)
+```
+
+```
+sudo dnf install p7zip p7zip-plugins
+要7zip
+gzip -> zip -> extension フォルダをリネームして /vscode/extensions に配置
+```
+
+```
+How to download the .vsix file for older versions? #20184
+https://github.com/microsoft/vscode-python/discussions/20184
+
+?targetPlatform=linux-x64
+
+```
+https://marketplace.visualstudio.com/_apis/public/gallery/publishers/${publisher}/vsextensions/${extension}/${version}/vspackage
+```
+
+https://marketplace.visualstudio.com/_apis/public/gallery/publishers/ms-python/extensions/python/latest/vspackage
+
+wget "https://marketplace.visualstudio.com/_apis/public/gallery/publishers/ms-python/extensions/python/latest/vspackage" -O ms-python-python.vsix
+      https://marketplace.visualstudio.com/items?itemName=ms-dotnettools.csharp
+
+$download_url = "http://${publisher}.gallery.vsassets.io/_apis/public/gallery/publisher/${publisher}/extension/${extensionname}/${version}/assetbyname/Microsoft.VisualStudio.Services.VSIXPackage"

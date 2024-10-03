@@ -49,8 +49,27 @@ COPY settings.json /vscode/server-data/data/Machine/settings.json
 RUN mkdir -p "/vscode/server-data" \
     && mkdir -p "/vscode/user-data" \
     && mkdir -p "/vscode/extensions" \
-    && mkdir -p "/vscode/cli-data" \
-    && chmod -R 777 /vscode
+    && mkdir -p "/vscode/cli-data"
+
+# C# の拡張機能をインストール
+# ms-dotnettools.csharp-2.45.25
+RUN rm -f /tmp/vspackage.gzip && rm -f /tmp/vspackage.zip && rm -rf /tmp/vspackage \
+    && wget "https://marketplace.visualstudio.com/_apis/public/gallery/publishers/ms-dotnettools/vsextensions/csharp/2.45.25/vspackage?targetPlatform=linux-x64" -O /tmp/vspackage.gzip \
+    && gunzip -c /tmp/vspackage.gzip > /tmp/vspackage.zip \
+    && unzip /tmp/vspackage.zip "extension/*" -d /tmp/vspackage \
+    && mv /tmp/vspackage/extension /vscode/extensions/ms-dotnettools.csharp-2.45.25-linux-x64 \
+    && rm -f /tmp/vspackage.gzip && rm -f /tmp/vspackage.zip && rm -rf /tmp/vspackage
+
+# ms-dotnettools.vscode-dotnet-runtime-2.1.7
+RUN rm -f /tmp/vspackage.gzip && rm -f /tmp/vspackage.zip && rm -rf /tmp/vspackage \
+    && wget "https://marketplace.visualstudio.com/_apis/public/gallery/publishers/ms-dotnettools/vsextensions/vscode-dotnet-runtime/2.1.7/vspackage" -O /tmp/vspackage.gzip \
+    && gunzip -c /tmp/vspackage.gzip > /tmp/vspackage.zip \
+    && unzip /tmp/vspackage.zip "extension/*" -d /tmp/vspackage \
+    && mv /tmp/vspackage/extension /vscode/extensions/ms-dotnettools.vscode-dotnet-runtime-2.1.7-linux-x64 \
+    && rm -f /tmp/vspackage.gzip && rm -f /tmp/vspackage.zip && rm -rf /tmp/vspackage
+
+# これをやらないと拡張機能が実行できない
+RUN chmod -R 777 /vscode
 
 # ----------------------------------------------------------------------------------------------------
 
