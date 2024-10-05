@@ -328,8 +328,9 @@ gzip -> zip -> extension フォルダをリネームして /vscode/extensions �
 ```
 How to download the .vsix file for older versions? #20184
 https://github.com/microsoft/vscode-python/discussions/20184
+> ?targetPlatform=linux-x64
+> Valid targets: win32-x64, win32-arm64, linux-x64, linux-arm64, linux-armhf, darwin-x64, darwin-arm64, alpine-x64, alpine-arm64, web
 
-?targetPlatform=linux-x64
 
 ```
 https://marketplace.visualstudio.com/_apis/public/gallery/publishers/${publisher}/vsextensions/${extension}/${version}/vspackage
