@@ -11,8 +11,6 @@ services:
         USER_UID: ${USER_UID}
         USER_GID: ${USER_GID}
     user: ${USER_UID}:${USER_GID}
-    environment:
-      - VSCODE_USER=${USER_NAME} 
     ports:
       - ${SSH_PORT}:22
     volumes:
