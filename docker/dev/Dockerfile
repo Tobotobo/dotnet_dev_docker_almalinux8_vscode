@@ -29,22 +29,22 @@ ENV LANG="ja_JP.UTF-8" \
 # VSCode CLI をインストール
 ARG VSCODE_VERSION="stable" \
     VSCODE_INSTALL_DIR="/usr/local/bin" \
-    VSCODE_DATA_ROOT_DIR="/vscode" \
-    VSCODE_SERVER_DATA_DIR="${VSCODE_DATA_ROOT_DIR}/server-data" \
+    VSCODE_DATA_ROOT_DIR="/vscode"
+ARG VSCODE_SERVER_DATA_DIR="${VSCODE_DATA_ROOT_DIR}/server-data" \
     VSCODE_USER_DATA_DIR="${VSCODE_DATA_ROOT_DIR}/user-data" \
     VSCODE_EXTENSIONS_DIR="${VSCODE_DATA_ROOT_DIR}/extensions" \
     VSCODE_CLI_DATA_DIR="${VSCODE_DATA_ROOT_DIR}/cli-data"
-COPY settings.json "${VSCODE_SERVER_DATA_DIR}/data/Machine/"
 COPY vscode_install_extension.sh /
-RUN wget "https://code.visualstudio.com/sha/download?build=${VSCODE_VERSION}&os=cli-alpine-x64" -O vscode_cli.tar.gz \
-    && tar -xf vscode_cli.tar.gz \
-    && mv ./code "${VSCODE_INSTALL_DIR}" \
-    && rm ./vscode_cli.tar.gz \
-    && mkdir -p "${VSCODE_SERVER_DATA_DIR}" \
+RUN mkdir -p "${VSCODE_SERVER_DATA_DIR}" \
     && mkdir -p "${VSCODE_USER_DATA_DIR}" \
     && mkdir -p "${VSCODE_EXTENSIONS_DIR}" \
     && mkdir -p "${VSCODE_CLI_DATA_DIR}" \
+    && wget "https://code.visualstudio.com/sha/download?build=${VSCODE_VERSION}&os=cli-alpine-x64" -O /tmp/vscode_cli.tar.gz \
+    && tar -xf /tmp/vscode_cli.tar.gz -C /tmp \
+    && mv /tmp/code "${VSCODE_INSTALL_DIR}" \
+    && rm /tmp/vscode_cli.tar.gz \
     && chmod +x /vscode_install_extension.sh
+COPY settings.json "${VSCODE_SERVER_DATA_DIR}/data/Machine/"
 
 # ----------------------------------------------------------------------------------------------------
 
